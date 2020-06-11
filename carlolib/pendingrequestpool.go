@@ -2,7 +2,7 @@ package carlolib
 
 import "sync"
 
-var pendingRequestPool = newPendingRequestPool()
+var pendingRequestPool = &PendingRequestPool{sp: sync.Pool{}}
 
 type pendingRequest struct {
 	dst []byte         // dst to copy response to
@@ -11,10 +11,6 @@ type pendingRequest struct {
 
 type PendingRequestPool struct {
 	sp sync.Pool
-}
-
-func newPendingRequestPool() *PendingRequestPool {
-	return &PendingRequestPool{sp: sync.Pool{}}
 }
 
 func (p *PendingRequestPool) acquire(dst []byte) *pendingRequest {

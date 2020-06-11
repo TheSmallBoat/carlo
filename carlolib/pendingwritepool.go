@@ -6,7 +6,7 @@ import (
 	"github.com/valyala/bytebufferpool"
 )
 
-var pendingWritePool = newPendingWritePool()
+var pendingWritePool = &PendingWritePool{sp: sync.Pool{}}
 
 type pendingWrite struct {
 	buf  *bytebufferpool.ByteBuffer // payload
@@ -17,10 +17,6 @@ type pendingWrite struct {
 
 type PendingWritePool struct {
 	sp sync.Pool
-}
-
-func newPendingWritePool() *PendingWritePool {
-	return &PendingWritePool{sp: sync.Pool{}}
 }
 
 func (p *PendingWritePool) acquire(buf *bytebufferpool.ByteBuffer, wait bool) *pendingWrite {

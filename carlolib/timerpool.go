@@ -6,14 +6,10 @@ import (
 )
 
 var zeroTime time.Time
-var timerPool = newTimerPool()
+var timerPool = &TimerPool{sp: sync.Pool{}}
 
 type TimerPool struct {
 	sp sync.Pool
-}
-
-func newTimerPool() *TimerPool {
-	return &TimerPool{sp: sync.Pool{}}
 }
 
 func (p *TimerPool) acquire(timeout time.Duration) *time.Timer {
