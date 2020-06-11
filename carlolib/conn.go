@@ -353,7 +353,7 @@ func (c *Conn) readLoop(conn BufferedConn) error {
 }
 
 func (c *Conn) call(seq uint32, data []byte) error {
-	ctx := contextPool.acquire(c.send, seq, data)
+	ctx := contextPool.acquire(c, seq, data)
 	defer contextPool.release(ctx)
 	return c.getHandler().HandleMessage(ctx)
 }
