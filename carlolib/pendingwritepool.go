@@ -6,24 +6,24 @@ import (
 	"github.com/valyala/bytebufferpool"
 )
 
-type ByteBuffer bytebufferpool.ByteBuffer
+var pendingWritePool = newPendingWritePool()
 
 type pendingWrite struct {
-	buf  *ByteBuffer    // payload
-	wait bool           // signal to caller if they're waiting
-	err  error          // keeps track of any socket errors on write
-	wg   sync.WaitGroup // signals the caller that this write is complete
+	buf  *bytebufferpool.ByteBuffer // payload
+	wait bool                       // signal to caller if they're waiting
+	err  error                      // keeps track of any socket errors on write
+	wg   sync.WaitGroup             // signals the caller that this write is complete
 }
 
 type PendingWritePool struct {
 	sp sync.Pool
 }
 
-func NewPendingWritePool() *PendingWritePool {
+func newPendingWritePool() *PendingWritePool {
 	return &PendingWritePool{sp: sync.Pool{}}
 }
 
-func (p *PendingWritePool) Acquire(buf *ByteBuffer, wait bool) *pendingWrite {
+func (p *PendingWritePool) acquire(buf *bytebufferpool.ByteBuffer, wait bool) *pendingWrite {
 	v := p.sp.Get()
 	if v == nil {
 		v = &pendingWrite{}
@@ -34,4 +34,4 @@ func (p *PendingWritePool) Acquire(buf *ByteBuffer, wait bool) *pendingWrite {
 	return pw
 }
 
-func (p *PendingWritePool) Release(pw *pendingWrite) { p.sp.Put(pw) }
+func (p *PendingWritePool) release(pw *pendingWrite) { p.sp.Put(pw) }

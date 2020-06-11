@@ -6,12 +6,13 @@ import (
 )
 
 var zeroTime time.Time
+var timePool = newTimePool()
 
 type TimePool struct {
 	sp sync.Pool
 }
 
-func NewTimePool() *TimePool {
+func newTimePool() *TimePool {
 	return &TimePool{sp: sync.Pool{}}
 }
 
