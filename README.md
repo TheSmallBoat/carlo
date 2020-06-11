@@ -5,6 +5,8 @@ It is a hard fork of Monte, mainly for experimental learning by reconstruction, 
 ## Further information
 For the description and license of monte(https://github.com/lithdew/monte), please check the docs directory.
 
+Thanks to Kenta Iwasaki for his excellent work.
+
 ## Benchmarks
 
 ```
