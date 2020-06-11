@@ -6,17 +6,17 @@ import (
 )
 
 var zeroTime time.Time
-var timePool = newTimePool()
+var timerPool = newTimerPool()
 
-type TimePool struct {
+type TimerPool struct {
 	sp sync.Pool
 }
 
-func newTimePool() *TimePool {
-	return &TimePool{sp: sync.Pool{}}
+func newTimerPool() *TimerPool {
+	return &TimerPool{sp: sync.Pool{}}
 }
 
-func (p *TimePool) Acquire(timeout time.Duration) *time.Timer {
+func (p *TimerPool) acquire(timeout time.Duration) *time.Timer {
 	v := p.sp.Get()
 	if v == nil {
 		return time.NewTimer(timeout)
@@ -26,7 +26,7 @@ func (p *TimePool) Acquire(timeout time.Duration) *time.Timer {
 	return t
 }
 
-func (p *TimePool) Release(t *time.Timer) {
+func (p *TimerPool) release(t *time.Timer) {
 	if !t.Stop() {
 		select {
 		case <-t.C:

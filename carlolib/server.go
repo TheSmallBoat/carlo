@@ -119,8 +119,8 @@ func (s *Server) serverAvailable() bool {
 	case s.sem <- struct{}{}:
 		return true
 	default:
-		timer := AcquireTimer(s.getMaxConnWaitTimeout())
-		defer ReleaseTimer(timer)
+		timer := timerPool.acquire(s.getMaxConnWaitTimeout())
+		defer timerPool.release(timer)
 
 		select {
 		case <-timer.C:
@@ -134,8 +134,8 @@ func (s *Server) serverAvailable() bool {
 }
 
 func (s *Server) wait(duration time.Duration) bool {
-	timer := AcquireTimer(duration)
-	defer ReleaseTimer(timer)
+	timer := timerPool.acquire(duration)
+	defer timerPool.release(timer)
 
 	select {
 	case <-timer.C:
