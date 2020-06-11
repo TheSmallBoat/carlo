@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/lithdew/bytesutil"
-	"github.com/oasislabs/ed25519"
-	"github.com/oasislabs/ed25519/extra/x25519"
+	"github.com/oasisprotocol/ed25519"
+	"github.com/oasisprotocol/ed25519/extra/x25519"
 )
 
 var _ BufferedConn = (*SessionConn)(nil)
