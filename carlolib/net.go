@@ -2,12 +2,12 @@ package carlolib
 
 import "net"
 
-type ConnState int
-
 type BufferedConn interface {
 	net.Conn
 	Flush() error
 }
+
+type ConnState int
 
 const (
 	StateNew ConnState = iota
@@ -34,12 +34,34 @@ func (fn HandlerFunc) HandleMessage(ctx *Context) error { return fn(ctx) }
 
 var DefaultHandler HandlerFunc = func(ctx *Context) error { return nil }
 
-type HandShaker interface {
+type Handshaker interface {
 	Handshake(conn net.Conn) (BufferedConn, error)
 }
 
-type HandShakerFunc func(conn net.Conn) (BufferedConn, error)
+type HandshakerFunc func(conn net.Conn) (BufferedConn, error)
 
-func (fn HandShakerFunc) Handshake(conn net.Conn) (BufferedConn, error) { return fn(conn) }
+func (fn HandshakerFunc) Handshake(conn net.Conn) (BufferedConn, error) { return fn(conn) }
 
+var DefaultClientHandshaker HandshakerFunc = func(conn net.Conn) (BufferedConn, error) {
+	session, err := NewSession()
+	if err != nil {
+		return nil, err
+	}
+	err = session.DoClient(conn)
+	if err != nil {
+		return nil, err
+	}
+	return NewSessionConn(session.Suite(), conn), nil
+}
 
+var DefaultServerHandshaker HandshakerFunc = func(conn net.Conn) (BufferedConn, error) {
+	session, err := NewSession()
+	if err != nil {
+		return nil, err
+	}
+	err = session.DoServer(conn)
+	if err != nil {
+		return nil, err
+	}
+	return NewSessionConn(session.Suite(), conn), nil
+}

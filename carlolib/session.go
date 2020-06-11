@@ -2,15 +2,18 @@ package carlolib
 
 import (
 	"bufio"
+	"crypto/aes"
 	"crypto/cipher"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"net"
 	"time"
 
 	"github.com/lithdew/bytesutil"
 	"github.com/oasisprotocol/ed25519"
 	"github.com/oasisprotocol/ed25519/extra/x25519"
+	"golang.org/x/crypto/blake2b"
 )
 
 var _ BufferedConn = (*SessionConn)(nil)
@@ -135,4 +138,65 @@ func (s *Session) Suite() cipher.AEAD {
 
 func (s *Session) SharedKey() []byte {
 	return s.sharedKey
+}
+
+func (s *Session) Write(conn net.Conn) error {
+	err := Write(conn, s.ourPub)
+	if err != nil {
+		return fmt.Errorf("failed to write session public key: %w", err)
+	}
+	return nil
+}
+
+func (s *Session) Read(conn net.Conn) error {
+	publicKey, err := Read(make([]byte, x25519.PointSize), conn)
+	if err != nil {
+		return fmt.Errorf("failed to read peer session public key: %w", err)
+	}
+	s.theirPub = publicKey
+	return nil
+}
+
+func (s *Session) Establish() error {
+	if s.theirPub == nil {
+		return errors.New("did not read peer session public key yet")
+	}
+	sharedKey, err := x25519.X25519(s.ourPriv, s.theirPub)
+	if err != nil {
+		return fmt.Errorf("failed to derive shared session key: %w", err)
+	}
+	derivedKey := blake2b.Sum256(sharedKey)
+	block, err := aes.NewCipher(derivedKey[:])
+	if err != nil {
+		return fmt.Errorf("failed to init aes cipher: %w", err)
+	}
+	suite, err := cipher.NewGCM(block)
+	if err != nil {
+		return fmt.Errorf("failed to init aead suite: %w", err)
+	}
+	s.sharedKey = derivedKey[:]
+	s.suite = suite
+	return nil
+}
+
+func (s *Session) DoClient(conn net.Conn) error {
+	err := s.Write(conn)
+	if err == nil {
+		err = s.Read(conn)
+	}
+	if err == nil {
+		err = s.Establish()
+	}
+	return err
+}
+
+func (s *Session) DoServer(conn net.Conn) error {
+	err := s.Read(conn)
+	if err == nil {
+		err = s.Write(conn)
+	}
+	if err == nil {
+		err = s.Establish()
+	}
+	return err
 }
