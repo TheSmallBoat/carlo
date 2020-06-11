@@ -13,6 +13,7 @@ import (
 
 var DefaultReadBufferSize = 4096
 var DefaultWriteBufferSize = 4096
+
 var DefaultReadTimeout = 3 * time.Second
 var DefaultWriteTimeout = 3 * time.Second
 
