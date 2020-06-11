@@ -12,7 +12,7 @@ type TimePool struct {
 }
 
 func NewTimePool() *TimePool {
-	return &TimePool{sp:sync.Pool{}}
+	return &TimePool{sp: sync.Pool{}}
 }
 
 func (p *TimePool) Acquire(timeout time.Duration) *time.Timer {

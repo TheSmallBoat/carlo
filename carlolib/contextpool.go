@@ -5,9 +5,9 @@ import "sync"
 type ContextFunc func(seq uint32, buf []byte) error
 
 type Context struct {
-	fn ContextFunc
-	seq  uint32
-	buf  []byte
+	fn  ContextFunc
+	seq uint32
+	buf []byte
 }
 
 func (c *Context) Body() []byte           { return c.buf }
