@@ -37,7 +37,7 @@ type Conn struct {
 	seq  uint32
 }
 
-func (c *Conn) NumPendingWrites() int {
+func (c *Conn) NumOfPendingWrites() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return len(c.writerQueue)
