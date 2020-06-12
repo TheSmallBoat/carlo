@@ -7,7 +7,7 @@ import (
 	"github.com/valyala/bytebufferpool"
 )
 
-var pendingWritePool = &PendingWritePool{sp: sync.Pool{}}
+var pendingWritePool = &PendingWritePool{sp: sync.Pool{}, m: &PoolMetrics{}}
 
 type pendingWrite struct {
 	buf  *bytebufferpool.ByteBuffer // payload
@@ -18,18 +18,16 @@ type pendingWrite struct {
 
 type PendingWritePool struct {
 	sp sync.Pool
-	na uint64 // number of new acquires
-	nr uint64 // number of reuse from pool
-	np uint64 // number of put back to pool
+	m  *PoolMetrics
 }
 
 func (p *PendingWritePool) acquire(buf *bytebufferpool.ByteBuffer, wait bool) *pendingWrite {
 	v := p.sp.Get()
 	if v == nil {
 		v = &pendingWrite{}
-		atomic.AddUint64(&p.na, uint64(1))
+		atomic.AddUint32(&p.m.na, uint32(1))
 	} else {
-		atomic.AddUint64(&p.nr, uint64(1))
+		atomic.AddUint32(&p.m.nr, uint32(1))
 	}
 
 	pw := v.(*pendingWrite)
@@ -40,5 +38,5 @@ func (p *PendingWritePool) acquire(buf *bytebufferpool.ByteBuffer, wait bool) *p
 
 func (p *PendingWritePool) release(pw *pendingWrite) {
 	p.sp.Put(pw)
-	atomic.AddUint64(&p.np, uint64(1))
+	atomic.AddUint32(&p.m.np, uint32(1))
 }

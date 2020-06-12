@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-var pendingRequestPool = &PendingRequestPool{sp: sync.Pool{}}
+var pendingRequestPool = &PendingRequestPool{sp: sync.Pool{}, m: &PoolMetrics{}}
 
 type pendingRequest struct {
 	dst []byte         // dst to copy response to
@@ -14,18 +14,16 @@ type pendingRequest struct {
 
 type PendingRequestPool struct {
 	sp sync.Pool
-	na uint64 // number of new acquires
-	nr uint64 // number of reuse from pool
-	np uint64 // number of put back to pool
+	m  *PoolMetrics
 }
 
 func (p *PendingRequestPool) acquire(dst []byte) *pendingRequest {
 	v := p.sp.Get()
 	if v == nil {
 		v = &pendingRequest{}
-		atomic.AddUint64(&p.na, uint64(1))
+		atomic.AddUint32(&p.m.na, uint32(1))
 	} else {
-		atomic.AddUint64(&p.nr, uint64(1))
+		atomic.AddUint32(&p.m.nr, uint32(1))
 	}
 	pr := v.(*pendingRequest)
 	pr.dst = dst
@@ -34,5 +32,5 @@ func (p *PendingRequestPool) acquire(dst []byte) *pendingRequest {
 
 func (p *PendingRequestPool) release(pr *pendingRequest) {
 	p.sp.Put(pr)
-	atomic.AddUint64(&p.np, uint64(1))
+	atomic.AddUint32(&p.m.np, uint32(1))
 }

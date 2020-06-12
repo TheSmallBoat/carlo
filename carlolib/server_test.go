@@ -23,8 +23,8 @@ func TestServerShutdown(t *testing.T) {
 
 	require.NoError(t, srv.Serve(ln))
 
-	t.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
-	t.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
-	t.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
-	t.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
+	t.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.m.na, timerPool.m.nr, timerPool.m.np)
+	t.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.m.na, contextPool.m.nr, contextPool.m.np)
+	t.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.m.na, pendingRequestPool.m.nr, pendingRequestPool.m.np)
+	t.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.m.na, pendingWritePool.m.nr, pendingWritePool.m.np)
 }

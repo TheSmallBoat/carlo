@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-var contextPool = &ContextPool{sp: sync.Pool{}}
+var contextPool = &ContextPool{sp: sync.Pool{}, m: &PoolMetrics{}}
 
 type Context struct {
 	conn *Conn
@@ -16,22 +16,22 @@ type Context struct {
 func (c *Context) Body() []byte           { return c.buf }
 func (c *Context) Reply(buf []byte) error { return c.conn.send(c.seq, buf) }
 
-// na + nr equal the total number of acquires
-// na + nr - np equal the number of still running.
 type ContextPool struct {
 	sp sync.Pool
-	na uint64 // number of new acquires
-	nr uint64 // number of reuse from pool
-	np uint64 // number of put back to pool
+	m  *PoolMetrics
+}
+
+func (p *ContextPool) metrics() *PoolMetrics {
+	return p.m
 }
 
 func (p *ContextPool) acquire(conn *Conn, seq uint32, buf []byte) *Context {
 	v := p.sp.Get()
 	if v == nil {
 		v = &Context{}
-		atomic.AddUint64(&p.na, uint64(1))
+		atomic.AddUint32(&p.m.na, uint32(1))
 	} else {
-		atomic.AddUint64(&p.nr, uint64(1))
+		atomic.AddUint32(&p.m.nr, uint32(1))
 	}
 	ctx := v.(*Context)
 	ctx.conn = conn
@@ -42,5 +42,5 @@ func (p *ContextPool) acquire(conn *Conn, seq uint32, buf []byte) *Context {
 
 func (p *ContextPool) release(ctx *Context) {
 	p.sp.Put(ctx)
-	atomic.AddUint64(&p.np, uint64(1))
+	atomic.AddUint32(&p.m.np, uint32(1))
 }
