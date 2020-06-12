@@ -78,6 +78,11 @@ func TestClientSend(t *testing.T) {
 	}
 
 	wg.Wait()
+
+	t.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	t.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	t.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	t.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func TestClientRequest(t *testing.T) {
@@ -128,6 +133,11 @@ func TestClientRequest(t *testing.T) {
 	}
 
 	wg.Wait()
+
+	t.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	t.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	t.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	t.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func BenchmarkSend(b *testing.B) {
@@ -163,6 +173,11 @@ func BenchmarkSend(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	b.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	b.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	b.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func BenchmarkSendNoWait(b *testing.B) {
@@ -198,6 +213,11 @@ func BenchmarkSendNoWait(b *testing.B) {
 			b.Fatal(err)
 		}
 	}
+
+	b.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	b.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	b.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	b.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func BenchmarkRequest(b *testing.B) {
@@ -239,6 +259,11 @@ func BenchmarkRequest(b *testing.B) {
 			b.Fatalf("expected empty response, got '%s'", string(res))
 		}
 	}
+
+	b.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	b.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	b.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	b.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func BenchmarkParallelSend(b *testing.B) {
@@ -276,6 +301,11 @@ func BenchmarkParallelSend(b *testing.B) {
 			}
 		}
 	})
+
+	b.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	b.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	b.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	b.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func BenchmarkParallelSendNoWait(b *testing.B) {
@@ -313,6 +343,11 @@ func BenchmarkParallelSendNoWait(b *testing.B) {
 			}
 		}
 	})
+
+	b.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	b.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	b.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	b.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }
 
 func BenchmarkParallelRequest(b *testing.B) {
@@ -356,4 +391,9 @@ func BenchmarkParallelRequest(b *testing.B) {
 			}
 		}
 	})
+
+	b.Logf("Timer Pool => new:%d,reuse:%d,putback:%d", timerPool.na, timerPool.nr, timerPool.np)
+	b.Logf("Context Pool => new:%d,reuse:%d,putback:%d", contextPool.na, contextPool.nr, contextPool.np)
+	b.Logf("PendingRequest Pool => new:%d,reuse:%d,putback:%d", pendingRequestPool.na, pendingRequestPool.nr, pendingRequestPool.np)
+	b.Logf("PendingWrite Pool => new:%d,reuse:%d,putback:%d", pendingWritePool.na, pendingWritePool.nr, pendingWritePool.np)
 }

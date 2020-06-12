@@ -2,6 +2,7 @@ package carlolib
 
 import (
 	"sync"
+	"sync/atomic"
 
 	"github.com/valyala/bytebufferpool"
 )
@@ -17,17 +18,27 @@ type pendingWrite struct {
 
 type PendingWritePool struct {
 	sp sync.Pool
+	na uint64 // number of new acquires
+	nr uint64 // number of reuse from pool
+	np uint64 // number of put back to pool
 }
 
 func (p *PendingWritePool) acquire(buf *bytebufferpool.ByteBuffer, wait bool) *pendingWrite {
 	v := p.sp.Get()
 	if v == nil {
 		v = &pendingWrite{}
+		atomic.AddUint64(&p.na, uint64(1))
+	} else {
+		atomic.AddUint64(&p.nr, uint64(1))
 	}
+
 	pw := v.(*pendingWrite)
 	pw.buf = buf
 	pw.wait = wait
 	return pw
 }
 
-func (p *PendingWritePool) release(pw *pendingWrite) { p.sp.Put(pw) }
+func (p *PendingWritePool) release(pw *pendingWrite) {
+	p.sp.Put(pw)
+	atomic.AddUint64(&p.np, uint64(1))
+}
