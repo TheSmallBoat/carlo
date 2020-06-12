@@ -15,7 +15,6 @@ func main() {
 		}
 	}
 
-	ch := make(chan []byte, 1)
 	go func() {
 		conn, err := net.Dial("tcp", ":4444")
 
@@ -33,8 +32,6 @@ func main() {
 			check(sc.Flush())
 		}
 
-		ch <- sess.SharedKey()
-		close(ch)
 	}()
 
 	ln, err := net.Listen("tcp", ":4444")
