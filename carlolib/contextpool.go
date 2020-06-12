@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-var contextPool = &ContextPool{sp: sync.Pool{}, m: &PoolMetrics{}}
+var contextPool = &ContextPool{sp: sync.Pool{}, m: newPoolMetrics()}
 
 type Context struct {
 	conn *Conn
