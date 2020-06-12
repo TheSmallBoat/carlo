@@ -6,9 +6,6 @@ import (
 	"time"
 )
 
-var zeroTime time.Time
-var timerPool = &TimerPool{sp: sync.Pool{}, m: newPoolMetrics()}
-
 type TimerPool struct {
 	sp sync.Pool
 	m  *PoolMetrics

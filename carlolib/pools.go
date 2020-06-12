@@ -1,6 +1,17 @@
 package carlolib
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+var zeroTime time.Time
+
+var timerPool = &TimerPool{sp: sync.Pool{}, m: newPoolMetrics()}
+var contextPool = &ContextPool{sp: sync.Pool{}, m: newPoolMetrics()}
+var pendingRequestPool = &PendingRequestPool{sp: sync.Pool{}, m: newPoolMetrics()}
+var pendingWritePool = &PendingWritePool{sp: sync.Pool{}, m: newPoolMetrics()}
 
 func startPoolMetrics() {
 	timerPool.m.start()

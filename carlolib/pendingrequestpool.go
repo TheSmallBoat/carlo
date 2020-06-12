@@ -5,8 +5,6 @@ import (
 	"sync/atomic"
 )
 
-var pendingRequestPool = &PendingRequestPool{sp: sync.Pool{}, m: newPoolMetrics()}
-
 type pendingRequest struct {
 	dst []byte         // dst to copy response to
 	err error          // error while waiting for response

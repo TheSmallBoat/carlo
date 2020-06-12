@@ -7,8 +7,6 @@ import (
 	"github.com/valyala/bytebufferpool"
 )
 
-var pendingWritePool = &PendingWritePool{sp: sync.Pool{}, m: newPoolMetrics()}
-
 type pendingWrite struct {
 	buf  *bytebufferpool.ByteBuffer // payload
 	wait bool                       // signal to caller if they're waiting
