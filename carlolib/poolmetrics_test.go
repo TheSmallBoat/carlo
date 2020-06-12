@@ -14,7 +14,7 @@ import (
 func TestPoolMetrics(t *testing.T) {
 	defer goleak.VerifyNone(t)
 
-	startPoolMetrics()
+	StartPoolMetrics()
 
 	n := 4
 	m := 1024
@@ -52,10 +52,10 @@ func TestPoolMetrics(t *testing.T) {
 		}
 
 		wg.Wait()
-		t.Logf("%s", jsonStringPoolMetrics())
+		t.Logf("%s", JsonStringPoolMetrics())
 		time.Sleep(200 * time.Millisecond)
 	}
-	releasePoolMetrics()
+	ReleasePoolMetrics()
 	time.Sleep(200 * time.Millisecond)
-	t.Logf("%s", jsonStringPoolMetrics())
+	t.Logf("%s", JsonStringPoolMetrics())
 }
