@@ -11,6 +11,9 @@ var DefaultNumDialAttempts = 1
 
 var DefaultDialTimeout = 3 * time.Second
 
+var DefaultClientSeqOffset uint32 = 1
+var DefaultClientSeqDelta uint32 = 2
+
 type clientConn struct {
 	conn  *Conn
 	ready chan struct{}
@@ -36,6 +39,9 @@ type Client struct {
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 
+	SeqOffset uint32
+	SeqDelta  uint32
+
 	once     sync.Once
 	shutdown sync.Once
 
@@ -45,7 +51,7 @@ type Client struct {
 	conns []*clientConn
 }
 
-func (c *Client) ready() (*clientConn, error) {
+func (c *Client) Get() (*Conn, error) {
 	c.once.Do(c.init)
 
 	cc := c.getClientConn()
@@ -54,34 +60,34 @@ func (c *Client) ready() (*clientConn, error) {
 	if cc.err != nil {
 		return nil, cc.err
 	}
-	return cc, nil
+	return cc.conn, nil
 }
 
 func (c *Client) Send(buf []byte) error {
-	cc, err := c.ready()
+	conn, err := c.Get()
 	if err != nil {
 		return err
 	}
 
-	return cc.conn.Send(buf)
+	return conn.Send(buf)
 }
 
 func (c *Client) SendNoWait(buf []byte) error {
-	cc, err := c.ready()
+	conn, err := c.Get()
 	if err != nil {
 		return err
 	}
 
-	return cc.conn.SendNoWait(buf)
+	return conn.SendNoWait(buf)
 }
 
 func (c *Client) Request(dst, buf []byte) ([]byte, error) {
-	cc, err := c.ready()
+	conn, err := c.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	return cc.conn.Request(dst, buf)
+	return conn.Request(dst, buf)
 }
 
 func (c *Client) NumOfPendingWrites() int {
@@ -126,6 +132,8 @@ func (c *Client) newClientConn() *clientConn {
 	cc := &clientConn{
 		ready: make(chan struct{}),
 		conn: &Conn{
+			SeqOffset:       c.getSeqOffset(),
+			SeqDelta:        c.getSeqDelta(),
 			Handler:         c.getHandler(),
 			ReadBufferSize:  c.getReadBufferSize(),
 			WriteBufferSize: c.getWriteBufferSize(),
@@ -163,7 +171,7 @@ func (c *Client) newClientConn() *clientConn {
 
 		if cc.err != nil {
 			if conn != nil {
-				_ = conn.Close()
+				conn.Close()
 			}
 			close(cc.ready)
 			return
@@ -285,4 +293,18 @@ func (c *Client) getWriteTimeout() time.Duration {
 		return DefaultWriteTimeout
 	}
 	return c.WriteTimeout
+}
+
+func (c *Client) getSeqOffset() uint32 {
+	if c.SeqOffset == 0 {
+		return DefaultClientSeqOffset
+	}
+	return c.SeqOffset
+}
+
+func (c *Client) getSeqDelta() uint32 {
+	if c.SeqDelta == 0 {
+		return DefaultClientSeqDelta
+	}
+	return c.SeqDelta
 }

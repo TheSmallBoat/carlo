@@ -17,6 +17,9 @@ var DefaultWriteBufferSize = 4096
 var DefaultReadTimeout = 3 * time.Second
 var DefaultWriteTimeout = 3 * time.Second
 
+var DefaultSeqOffset uint32 = 1
+var DefaultSeqDelta uint32 = 2
+
 type Conn struct {
 	Handler Handler
 
@@ -25,6 +28,9 @@ type Conn struct {
 
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
+
+	SeqOffset uint32
+	SeqDelta  uint32
 
 	mu   sync.Mutex
 	once sync.Once
@@ -224,13 +230,28 @@ func (c *Conn) getWriteTimeout() time.Duration {
 	return c.WriteTimeout
 }
 
+func (c *Conn) getSeqOffset() uint32 {
+	if c.SeqOffset == 0 {
+		return DefaultSeqOffset
+	}
+	return c.SeqOffset
+}
+
+func (c *Conn) getSeqDelta() uint32 {
+	if c.SeqDelta == 0 {
+		return DefaultSeqDelta
+	}
+	return c.SeqDelta
+}
+
 func (c *Conn) next() uint32 {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.seq++
 	if c.seq == 0 {
-		c.seq = 1
+		c.seq = c.getSeqOffset()
+	} else {
+		c.seq += c.getSeqDelta()
 	}
 	return c.seq
 }
@@ -300,29 +321,39 @@ func (c *Conn) writeLoop(conn BufferedConn) error {
 		}
 	}
 
+	if err != nil {
+		err = fmt.Errorf("write_loop: %w", err)
+	}
+
 	return err
 }
 
 func (c *Conn) readLoop(conn BufferedConn) error {
 	buf := make([]byte, c.getReadBufferSize())
 
+	var (
+		n   int
+		err error
+	)
+
 	for {
 		timeout := c.getReadTimeout()
 		if timeout > 0 {
-			err := conn.SetReadDeadline(time.Now().Add(timeout))
+			err = conn.SetReadDeadline(time.Now().Add(timeout))
 			if err != nil {
-				return err
+				break
 			}
 		}
 
-		n, err := conn.Read(buf)
+		n, err = conn.Read(buf)
 		if err != nil {
-			return err
+			break
 		}
 
 		data := buf[:n]
 		if len(data) < 4 {
-			return fmt.Errorf("no sequence number to decode: %w", io.ErrUnexpectedEOF)
+			err = fmt.Errorf("no sequence number to decode: %w", io.ErrUnexpectedEOF)
+			break
 		}
 
 		seq := bytesutil.Uint32BE(data)
@@ -336,9 +367,10 @@ func (c *Conn) readLoop(conn BufferedConn) error {
 		c.mu.Unlock()
 
 		if seq == 0 || !exists {
-			err := c.call(seq, data)
+			err = c.call(seq, data)
 			if err != nil {
-				return fmt.Errorf("handler encountered an error: %w", err)
+				err = fmt.Errorf("handler encountered an error: %w", err)
+				break
 			}
 			continue
 		}
@@ -350,6 +382,8 @@ func (c *Conn) readLoop(conn BufferedConn) error {
 
 		pr.wg.Done()
 	}
+
+	return fmt.Errorf("read_loop: %w", err)
 }
 
 func (c *Conn) call(seq uint32, data []byte) error {
@@ -380,7 +414,6 @@ func (c *Conn) close(err error) {
 		pr.wg.Done()
 
 		delete(c.reqs, seq)
-		pendingRequestPool.release(pr)
 	}
 
 	c.seq = 0

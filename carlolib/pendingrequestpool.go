@@ -30,6 +30,8 @@ func (p *PendingRequestPool) acquire(dst []byte) *pendingRequest {
 }
 
 func (p *PendingRequestPool) release(pr *pendingRequest) {
+	pr.dst = nil
+	pr.err = nil
 	p.sp.Put(pr)
 	atomic.AddUint32(&p.m.np, uint32(1))
 }

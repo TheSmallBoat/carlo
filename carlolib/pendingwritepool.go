@@ -35,6 +35,7 @@ func (p *PendingWritePool) acquire(buf *bytebufferpool.ByteBuffer, wait bool) *p
 }
 
 func (p *PendingWritePool) release(pw *pendingWrite) {
+	pw.err = nil
 	p.sp.Put(pw)
 	atomic.AddUint32(&p.m.np, uint32(1))
 }
