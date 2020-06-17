@@ -1,4 +1,4 @@
-module github.com/TheSmallBoat/carlo/lib
+module github.com/TheSmallBoat/carlo
 
 go 1.14
 
