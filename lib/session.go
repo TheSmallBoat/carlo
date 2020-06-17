@@ -1,4 +1,4 @@
-package carlolib
+package lib
 
 import (
 	"bufio"
