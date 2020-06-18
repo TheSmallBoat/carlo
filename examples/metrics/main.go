@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	carlo "github.com/TheSmallBoat/carlo/carlolib/carlolib"
+	carlo "github.com/TheSmallBoat/carlo/lib"
 )
 
 func main() {
