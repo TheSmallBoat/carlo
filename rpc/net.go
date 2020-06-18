@@ -20,7 +20,7 @@ const (
 
 type BindFunc func() (net.Listener, error)
 
-func BindAny() BindFunc {
+func BindTCPAnyPort() BindFunc {
 	return func() (net.Listener, error) { return net.Listen("tcp", ":0") }
 }
 

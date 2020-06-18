@@ -124,7 +124,7 @@ func (n *Node) StartWithTCP(addrs ...string) error {
 			return err
 		}
 
-		log.Printf("Listening for Flatend nodes on '%s'.", ln.Addr().String())
+		log.Printf("Listening for Carlo nodes on '%s'.", ln.Addr().String())
 
 		n.wg.Add(1)
 		go func() {
@@ -144,7 +144,7 @@ func (n *Node) StartWithTCP(addrs ...string) error {
 			return err
 		}
 
-		log.Printf("Listening for Flatend nodes on '%s'.", ln.Addr().String())
+		log.Printf("Listening for Carlo nodes on '%s'.", ln.Addr().String())
 
 		n.wg.Add(1)
 		go func() {
