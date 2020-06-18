@@ -1,4 +1,4 @@
-package rpc
+package streaming_rpc
 
 import (
 	"io"
@@ -6,21 +6,19 @@ import (
 	"github.com/lithdew/bytesutil"
 )
 
-type ServiceRequestPacket struct {
+type ServiceResponsePacket struct {
 	StreamId uint32            // stream id
-	Services []string          // services this packet may be processed through
+	Handled  bool              // whether or not the service was handled
 	Headers  map[string]string // headers for this packet
 }
 
-func (p ServiceRequestPacket) AppendTo(dst []byte) []byte {
+func (p ServiceResponsePacket) AppendTo(dst []byte) []byte {
 	dst = bytesutil.AppendUint32BE(dst, p.StreamId)
-
-	dst = append(dst, uint8(len(p.Services)))
-	for _, service := range p.Services {
-		dst = append(dst, uint8(len(service)))
-		dst = append(dst, service...)
+	if p.Handled {
+		dst = append(dst, 1)
+	} else {
+		dst = append(dst, 0)
 	}
-
 	if p.Headers != nil {
 		dst = bytesutil.AppendUint16BE(dst, uint16(len(p.Headers)))
 		for name, value := range p.Headers {
@@ -32,38 +30,19 @@ func (p ServiceRequestPacket) AppendTo(dst []byte) []byte {
 	} else {
 		dst = bytesutil.AppendUint16BE(dst, 0)
 	}
-
 	return dst
 }
 
-func UnmarshalServiceRequestPacket(buf []byte) (ServiceRequestPacket, error) {
-	var packet ServiceRequestPacket
+func UnmarshalServiceResponsePacket(buf []byte) (ServiceResponsePacket, error) {
+	var packet ServiceResponsePacket
 
 	{
-		if len(buf) < 4 {
+		if len(buf) < 5 {
 			return packet, io.ErrUnexpectedEOF
 		}
 
 		packet.StreamId, buf = bytesutil.Uint32BE(buf[:4]), buf[4:]
-	}
-
-	{
-		var size uint8
-		size, buf = buf[0], buf[1:]
-
-		packet.Services = make([]string, size)
-
-		for i := 0; i < len(packet.Services); i++ {
-			if len(buf) < 1 {
-				return packet, io.ErrUnexpectedEOF
-			}
-			size, buf = buf[0], buf[1:]
-			if len(buf) < int(size) {
-				return packet, io.ErrUnexpectedEOF
-			}
-			packet.Services[i] = string(buf[:size])
-			buf = buf[size:]
-		}
+		packet.Handled, buf = buf[0] == 1, buf[1:]
 	}
 
 	{

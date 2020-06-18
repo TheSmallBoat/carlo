@@ -1,9 +1,22 @@
-package rpc
+package streaming_rpc
 
 import (
 	"io"
 
 	carlo "github.com/TheSmallBoat/carlo/lib"
+)
+
+const ChunkSize = 2048
+
+type OpCode = uint8
+
+const (
+	OpCodeHandshake OpCode = iota
+	OpCodeServiceRequest
+	OpCodeServiceResponse
+	OpCodeData
+	OpCodeFindNodeRequest
+	OpCodeFindNodeResponse
 )
 
 type Handler func(ctx *Context)

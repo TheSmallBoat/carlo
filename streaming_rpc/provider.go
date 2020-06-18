@@ -1,9 +1,11 @@
-package rpc
+package streaming_rpc
 
 import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
+	"strconv"
 	"sync"
 
 	carlo "github.com/TheSmallBoat/carlo/lib"
@@ -171,4 +173,13 @@ func (p *Provider) Addr() string {
 	} else {
 		return "<anon>"
 	}
+}
+
+func HostAddr(host net.IP, port uint16) string {
+	h := ""
+	if len(host) > 0 {
+		h = host.String()
+	}
+	p := strconv.FormatUint(uint64(port), 10)
+	return net.JoinHostPort(h, p)
 }

@@ -1,4 +1,4 @@
-package rpc
+package streaming_rpc
 
 import (
 	"testing"
