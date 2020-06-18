@@ -51,6 +51,10 @@ func GenerateSecretKey() kademlia.PrivateKey {
 	return secret
 }
 
+func (n *Node) Start() error {
+	return n.StartWithTcpAddrs()
+}
+
 func (n *Node) StartWithTcpAddrs(addrs ...string) error {
 	var (
 		bindHost net.IP
