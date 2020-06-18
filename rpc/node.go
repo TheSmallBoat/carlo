@@ -52,10 +52,10 @@ func GenerateSecretKey() kademlia.PrivateKey {
 }
 
 func (n *Node) Start() error {
-	return n.StartWithTcpAddrs()
+	return n.StartWithTCP()
 }
 
-func (n *Node) StartWithTcpAddrs(addrs ...string) error {
+func (n *Node) StartWithTCP(addrs ...string) error {
 	var (
 		bindHost net.IP
 		bindPort uint16
