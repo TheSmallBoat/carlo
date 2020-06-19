@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net"
 
-	carlo "github.com/TheSmallBoat/carlo/lib"
+	st "github.com/TheSmallBoat/carlo/streaming_transmit"
 )
 
 func main() {
@@ -18,13 +18,13 @@ func main() {
 	go func() {
 		conn, err := net.Dial("tcp", ":4444")
 
-		sess, err := carlo.NewSession()
+		sess, err := st.NewSession()
 		check(err)
 
 		check(sess.DoClient(conn))
 		fmt.Println(hex.EncodeToString(sess.SharedKey()))
 
-		sc := carlo.NewSessionConn(sess.Suite(), conn)
+		sc := st.NewSessionConn(sess.Suite(), conn)
 
 		for i := 0; i < 100; i++ {
 			_, err = sc.Write([]byte(fmt.Sprintf("[%d] Hello from Go!", i)))
@@ -42,14 +42,14 @@ func main() {
 	check(err)
 	defer conn.Close()
 
-	sess, err := carlo.NewSession()
+	sess, err := st.NewSession()
 	check(err)
 
 	check(sess.DoServer(conn))
 
 	fmt.Println(hex.EncodeToString(sess.SharedKey()))
 
-	sc := carlo.NewSessionConn(sess.Suite(), conn)
+	sc := st.NewSessionConn(sess.Suite(), conn)
 
 	buf := make([]byte, 1024)
 

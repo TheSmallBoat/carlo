@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	carlo "github.com/TheSmallBoat/carlo/lib"
+	st "github.com/TheSmallBoat/carlo/streaming_transmit"
 )
 
 func main() {
@@ -16,14 +16,14 @@ func main() {
 		}
 	}
 
-	carlo.StartPoolMetrics()
+	st.StartPoolMetrics()
 
 	ln, err := net.Listen("tcp", ":4444")
 	check(err)
 
-	client := &carlo.Client{Addr: ln.Addr().String()}
+	client := &st.Client{Addr: ln.Addr().String()}
 
-	var server carlo.Server
+	var server st.Server
 	go func() {
 		defer ln.Close()
 		defer server.Shutdown()
@@ -41,13 +41,13 @@ func main() {
 			for j := 0; j < 1024*256; j++ {
 				check(client.Send([]byte(fmt.Sprintf("[%d %d] Hello from Go!", i, j))))
 			}
-			fmt.Println(carlo.JsonStringPoolMetrics())
+			fmt.Println(st.JsonStringPoolMetrics())
 		}(i)
 	}
 
 	wg.Wait()
 
-	carlo.ReleasePoolMetrics()
+	st.ReleasePoolMetrics()
 	time.Sleep(200 * time.Millisecond)
-	fmt.Println(carlo.JsonStringPoolMetrics())
+	fmt.Println(st.JsonStringPoolMetrics())
 }
