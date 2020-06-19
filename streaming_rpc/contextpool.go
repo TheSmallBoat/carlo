@@ -4,14 +4,14 @@ import (
 	"io"
 	"sync"
 
-	carlo "github.com/TheSmallBoat/carlo/lib"
+	carlo_ "github.com/TheSmallBoat/carlo/lib"
 )
 
 type ContextPool struct {
 	sp sync.Pool
 }
 
-func (p *ContextPool) acquire(headers map[string]string, body io.ReadCloser, id uint32, conn *carlo.Conn) *Context {
+func (p *ContextPool) acquire(headers map[string]string, body io.ReadCloser, id uint32, conn *carlo_.Conn) *Context {
 	v := p.sp.Get()
 	if v == nil {
 		v = &Context{responseHeaders: make(map[string]string)}

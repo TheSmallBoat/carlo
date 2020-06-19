@@ -3,7 +3,7 @@ package streaming_rpc
 import (
 	"io"
 
-	carlo "github.com/TheSmallBoat/carlo/lib"
+	carlo_ "github.com/TheSmallBoat/carlo/lib"
 )
 
 const ChunkSize = 2048
@@ -25,7 +25,7 @@ var _ io.Writer = (*Context)(nil)
 
 type Context struct {
 	StreamId uint32 // stream id
-	Conn     *carlo.Conn
+	Conn     *carlo_.Conn
 
 	Headers map[string]string
 	Body    io.ReadCloser
