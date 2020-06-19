@@ -53,12 +53,12 @@ func GenerateSecretKey() kademlia.PrivateKey {
 	return secret
 }
 
-func NewStreamNode(kid *kademlia.ID, tab *kademlia.Table) *StreamNode {
+func NewStreamNode(sk kademlia.PrivateKey, kid *kademlia.ID, tab *kademlia.Table) *StreamNode {
 	return &StreamNode{
 		start:       sync.Once{},
 		stop:        sync.Once{},
 		wg:          sync.WaitGroup{},
-		SecretKey:   kademlia.ZeroPrivateKey,
+		SecretKey:   sk,
 		NetProtocol: NetProtocolTCP,
 		tableMu:     sync.Mutex{},
 		table:       tab,
