@@ -3,7 +3,6 @@ package streaming_rpc
 import (
 	"errors"
 	"fmt"
-	"github.com/jpillora/backoff"
 	"io"
 	"log"
 	"net"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	st "github.com/TheSmallBoat/carlo/streaming_transmit"
+	"github.com/jpillora/backoff"
 	"github.com/lithdew/kademlia"
 )
 
@@ -53,7 +53,7 @@ func GenerateSecretKey() kademlia.PrivateKey {
 	return secret
 }
 
-func NewStreamNode(kid *kademlia.ID, tab *kademlia.Table, srv *st.Server) *StreamNode {
+func NewStreamNode(kid *kademlia.ID, tab *kademlia.Table) *StreamNode {
 	return &StreamNode{
 		start:       sync.Once{},
 		stop:        sync.Once{},
@@ -63,7 +63,7 @@ func NewStreamNode(kid *kademlia.ID, tab *kademlia.Table, srv *st.Server) *Strea
 		tableMu:     sync.Mutex{},
 		table:       tab,
 		kadId:       kid,
-		srv:         srv,
+		srv:         nil,
 		providers:   NewProviders(),
 		Services:    make(map[string]Handler),
 		clientsMu:   sync.Mutex{},
@@ -155,6 +155,13 @@ func (n *StreamNode) Bootstrap() {
 	}
 
 	log.Printf("Discovered %d peer(s).", len(results))
+}
+
+func (n *StreamNode) setStreamTransmitServer() {
+	n.srv = &st.Server{
+		Handler:   n,
+		ConnState: n,
+	}
 }
 
 func (n *StreamNode) getClient(addr string) *st.Client {
@@ -549,6 +556,18 @@ func (n *StreamNode) HandleMessage(ctx *st.Context) error {
 	}
 
 	return fmt.Errorf("unknown opcode %d", opcode)
+}
+
+func (n *StreamNode) Start() error {
+	start := false
+	n.start.Do(func() { start = true })
+	if !start {
+		return errors.New("listener already started")
+	}
+
+	n.setStreamTransmitServer()
+
+	return nil
 }
 
 func (n *StreamNode) Shutdown() {
