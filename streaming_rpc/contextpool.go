@@ -11,7 +11,7 @@ type ContextPool struct {
 	sp sync.Pool
 }
 
-func (p *ContextPool) acquire(headers map[string]string, body io.ReadCloser, id uint32, conn *carlo_.Conn) *Context {
+func (p *ContextPool) Acquire(headers map[string]string, body io.ReadCloser, id uint32, conn *carlo_.Conn) *Context {
 	v := p.sp.Get()
 	if v == nil {
 		v = &Context{responseHeaders: make(map[string]string)}
@@ -24,7 +24,7 @@ func (p *ContextPool) acquire(headers map[string]string, body io.ReadCloser, id 
 	return ctx
 }
 
-func (p *ContextPool) release(ctx *Context) {
+func (p *ContextPool) Release(ctx *Context) {
 	ctx.written = false
 	for key := range ctx.responseHeaders {
 		delete(ctx.responseHeaders, key)

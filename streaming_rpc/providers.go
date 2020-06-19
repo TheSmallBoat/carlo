@@ -21,13 +21,13 @@ func NewProviders() *Providers {
 	}
 }
 
-func (p *Providers) findProvider(conn *carlo_.Conn) *Provider {
+func (p *Providers) FindProvider(conn *carlo_.Conn) *Provider {
 	p.Lock()
 	defer p.Unlock()
 	return p.providers[conn]
 }
 
-func (p *Providers) getProviders(services ...string) []*Provider {
+func (p *Providers) GetProviders(services ...string) []*Provider {
 	p.Lock()
 	defer p.Unlock()
 
@@ -51,7 +51,7 @@ func (p *Providers) getProviders(services ...string) []*Provider {
 	return providers
 }
 
-func (p *Providers) registerProvider(conn *carlo_.Conn, id *kademlia.ID, services []string, outgoing bool) (*Provider, bool) {
+func (p *Providers) RegisterProvider(conn *carlo_.Conn, id *kademlia.ID, services []string, outgoing bool) (*Provider, bool) {
 	p.Lock()
 	defer p.Unlock()
 
@@ -83,7 +83,7 @@ func (p *Providers) registerProvider(conn *carlo_.Conn, id *kademlia.ID, service
 	return provider, exists
 }
 
-func (p *Providers) deregisterProvider(conn *carlo_.Conn) *Provider {
+func (p *Providers) DeregisterProvider(conn *carlo_.Conn) *Provider {
 	p.Lock()
 	defer p.Unlock()
 
