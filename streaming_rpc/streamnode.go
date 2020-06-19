@@ -28,7 +28,6 @@ const (
 type StreamNode struct {
 	start sync.Once
 	stop  sync.Once
-	Wg    sync.WaitGroup
 
 	SecretKey   kademlia.PrivateKey // Used to sign for the HandshakePacket
 	NetProtocol NetProtocolType     // Such as TCP,UDP,IP
@@ -57,7 +56,6 @@ func NewStreamNode(sk kademlia.PrivateKey, kid *kademlia.ID, tab *kademlia.Table
 	return &StreamNode{
 		start:       sync.Once{},
 		stop:        sync.Once{},
-		Wg:          sync.WaitGroup{},
 		SecretKey:   sk,
 		NetProtocol: NetProtocolTCP,
 		tableMu:     sync.Mutex{},
@@ -584,5 +582,4 @@ func (n *StreamNode) Shutdown() {
 	}
 
 	n.Srv.Shutdown()
-	n.Wg.Wait()
 }
