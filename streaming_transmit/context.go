@@ -1,4 +1,4 @@
-package lib
+package streaming_transmit
 
 type Context struct {
 	conn *Conn
