@@ -28,16 +28,16 @@ const (
 type StreamNode struct {
 	start sync.Once
 	stop  sync.Once
-	wg    sync.WaitGroup
+	Wg    sync.WaitGroup
 
 	SecretKey   kademlia.PrivateKey // Used to sign for the HandshakePacket
 	NetProtocol NetProtocolType     // Such as TCP,UDP,IP
 
 	tableMu sync.Mutex
 	table   *kademlia.Table
-	kadId   *kademlia.ID
+	KadId   *kademlia.ID
 
-	srv       *st.Server
+	Srv       *st.Server
 	providers *Providers
 	Services  map[string]Handler
 
@@ -57,13 +57,13 @@ func NewStreamNode(sk kademlia.PrivateKey, kid *kademlia.ID, tab *kademlia.Table
 	return &StreamNode{
 		start:       sync.Once{},
 		stop:        sync.Once{},
-		wg:          sync.WaitGroup{},
+		Wg:          sync.WaitGroup{},
 		SecretKey:   sk,
 		NetProtocol: NetProtocolTCP,
 		tableMu:     sync.Mutex{},
 		table:       tab,
-		kadId:       kid,
-		srv:         nil,
+		KadId:       kid,
+		Srv:         nil,
 		providers:   NewProviders(),
 		Services:    make(map[string]Handler),
 		clientsMu:   sync.Mutex{},
@@ -83,8 +83,8 @@ func (n *StreamNode) Bootstrap() {
 	var mu sync.Mutex
 
 	var pub kademlia.PublicKey
-	if n.kadId != nil {
-		pub = n.kadId.Pub
+	if n.KadId != nil {
+		pub = n.KadId.Pub
 	}
 
 	busy := make(chan struct{}, kademlia.DefaultBucketSize)
@@ -158,7 +158,7 @@ func (n *StreamNode) Bootstrap() {
 }
 
 func (n *StreamNode) setStreamTransmitServer() {
-	n.srv = &st.Server{
+	n.Srv = &st.Server{
 		Handler:   n,
 		ConnState: n,
 	}
@@ -223,8 +223,8 @@ func (n *StreamNode) probeWithStreamTransmitConn(conn *st.Conn) error {
 
 func (n *StreamNode) createHandshakePacket(buf []byte) HandshakePacket {
 	packet := HandshakePacket{Services: n.getServiceNames()}
-	if n.kadId != nil {
-		packet.KadId = n.kadId
+	if n.KadId != nil {
+		packet.KadId = n.KadId
 		packet.Signature = n.SecretKey.Sign(packet.AppendPayloadTo(buf))
 	}
 	return packet
@@ -232,8 +232,8 @@ func (n *StreamNode) createHandshakePacket(buf []byte) HandshakePacket {
 
 func (n *StreamNode) createFindNodeRequest() kademlia.FindNodeRequest {
 	var req kademlia.FindNodeRequest
-	if n.kadId != nil {
-		req.Target = n.kadId.Pub
+	if n.KadId != nil {
+		req.Target = n.KadId.Pub
 	}
 	return req
 }
@@ -583,6 +583,6 @@ func (n *StreamNode) Shutdown() {
 		return
 	}
 
-	n.srv.Shutdown()
-	n.wg.Wait()
+	n.Srv.Shutdown()
+	n.Wg.Wait()
 }
