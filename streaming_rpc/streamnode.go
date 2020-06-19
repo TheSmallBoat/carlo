@@ -65,7 +65,7 @@ func NewStreamNode(sk kademlia.PrivateKey, kid *kademlia.ID, tab *kademlia.Table
 		KadId:       kid,
 		Srv:         nil,
 		providers:   NewProviders(),
-		Services:    make(map[string]Handler),
+		Services:    nil,
 		clientsMu:   sync.Mutex{},
 		clients:     make(map[string]*st.Client),
 	}

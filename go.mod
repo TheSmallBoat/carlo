@@ -1,4 +1,4 @@
-module github.com/TheSmallBoat/carlo
+module "github.com/TheSmallBoat/carlo"
 
 go 1.14
 
