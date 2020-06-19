@@ -8,14 +8,14 @@ import (
 	"strconv"
 	"sync"
 
-	carlo_ "github.com/TheSmallBoat/carlo/lib"
+	st "github.com/TheSmallBoat/carlo/streaming_transmit"
 	"github.com/lithdew/kademlia"
 )
 
 // Service Provider
 type Provider struct {
 	kadId *kademlia.ID
-	conn  *carlo_.Conn
+	conn  *st.Conn
 
 	services map[string]struct{}
 

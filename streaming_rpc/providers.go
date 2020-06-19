@@ -3,35 +3,35 @@ package streaming_rpc
 import (
 	"sync"
 
-	carlo_ "github.com/TheSmallBoat/carlo/lib"
+	st "github.com/TheSmallBoat/carlo/streaming_transmit"
 	"github.com/lithdew/kademlia"
 )
 
 type Providers struct {
 	sync.Mutex
 
-	services  map[string]map[*carlo_.Conn]struct{}
-	providers map[*carlo_.Conn]*Provider
+	services  map[string]map[*st.Conn]struct{}
+	providers map[*st.Conn]*Provider
 }
 
 func NewProviders() *Providers {
 	return &Providers{
-		services:  make(map[string]map[*carlo_.Conn]struct{}),
-		providers: make(map[*carlo_.Conn]*Provider),
+		services:  make(map[string]map[*st.Conn]struct{}),
+		providers: make(map[*st.Conn]*Provider),
 	}
 }
 
-func (p *Providers) FindProvider(conn *carlo_.Conn) *Provider {
+func (p *Providers) findProvider(conn *st.Conn) *Provider {
 	p.Lock()
 	defer p.Unlock()
 	return p.providers[conn]
 }
 
-func (p *Providers) GetProviders(services ...string) []*Provider {
+func (p *Providers) getProviders(services ...string) []*Provider {
 	p.Lock()
 	defer p.Unlock()
 
-	var conns []*carlo_.Conn
+	var conns []*st.Conn
 
 	for _, service := range services {
 		for conn := range p.services[service] {
@@ -51,7 +51,7 @@ func (p *Providers) GetProviders(services ...string) []*Provider {
 	return providers
 }
 
-func (p *Providers) RegisterProvider(conn *carlo_.Conn, id *kademlia.ID, services []string, outgoing bool) (*Provider, bool) {
+func (p *Providers) registerProvider(conn *st.Conn, id *kademlia.ID, services []string, outgoing bool) (*Provider, bool) {
 	p.Lock()
 	defer p.Unlock()
 
@@ -75,7 +75,7 @@ func (p *Providers) RegisterProvider(conn *carlo_.Conn, id *kademlia.ID, service
 	for _, service := range services {
 		provider.services[service] = struct{}{}
 		if _, exists := p.services[service]; !exists {
-			p.services[service] = make(map[*carlo_.Conn]struct{})
+			p.services[service] = make(map[*st.Conn]struct{})
 		}
 		p.services[service][conn] = struct{}{}
 	}
@@ -83,7 +83,7 @@ func (p *Providers) RegisterProvider(conn *carlo_.Conn, id *kademlia.ID, service
 	return provider, exists
 }
 
-func (p *Providers) DeregisterProvider(conn *carlo_.Conn) *Provider {
+func (p *Providers) deregisterProvider(conn *st.Conn) *Provider {
 	p.Lock()
 	defer p.Unlock()
 

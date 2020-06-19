@@ -3,10 +3,12 @@ package streaming_rpc
 import (
 	"io"
 
-	carlo_ "github.com/TheSmallBoat/carlo/lib"
+	st "github.com/TheSmallBoat/carlo/streaming_transmit"
 )
 
 const ChunkSize = 2048
+
+type Handler func(ctx *Context)
 
 type OpCode = uint8
 
@@ -19,13 +21,11 @@ const (
 	OpCodeFindNodeResponse
 )
 
-type Handler func(ctx *Context)
-
 var _ io.Writer = (*Context)(nil)
 
 type Context struct {
 	StreamId uint32 // stream id
-	Conn     *carlo_.Conn
+	Conn     *st.Conn
 
 	Headers map[string]string
 	Body    io.ReadCloser
