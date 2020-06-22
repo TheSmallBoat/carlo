@@ -4,6 +4,7 @@ import (
 	"io"
 
 	st "github.com/TheSmallBoat/carlo/streaming_transmit"
+	"github.com/lithdew/kademlia"
 )
 
 const ChunkSize = 2048
@@ -24,11 +25,12 @@ const (
 var _ io.Writer = (*Context)(nil)
 
 type Context struct {
-	StreamId uint32 // stream id
-	Conn     *st.Conn
-
+	KadId   kademlia.ID
 	Headers map[string]string
 	Body    io.ReadCloser
+
+	streamId uint32 // stream id
+	conn     *st.Conn
 
 	responseHeaders map[string]string // response headers
 	written         bool              // written before?
@@ -40,16 +42,20 @@ func (c *Context) WriteHeader(key, val string) {
 
 // Implement Write function for io.Writer interface
 func (c *Context) Write(data []byte) (int, error) {
+	if len(data) == 0 { // disallow writing zero bytes
+		return 0, nil
+	}
+
 	if !c.written {
 		packet := ServiceResponsePacket{
-			StreamId: c.StreamId,
+			StreamId: c.streamId,
 			Handled:  true,
 			Headers:  c.responseHeaders,
 		}
 
 		c.written = true
 
-		err := c.Conn.Send(packet.AppendTo([]byte{OpCodeServiceResponse}))
+		err := c.conn.Send(packet.AppendTo([]byte{OpCodeServiceResponse}))
 		if err != nil {
 			return 0, err
 		}
@@ -67,11 +73,11 @@ func (c *Context) Write(data []byte) (int, error) {
 		}
 
 		packet := DataPacket{
-			StreamID: c.StreamId,
+			StreamID: c.streamId,
 			Data:     data[start:end],
 		}
 
-		err := c.Conn.Send(packet.AppendTo([]byte{OpCodeData}))
+		err := c.conn.Send(packet.AppendTo([]byte{OpCodeData}))
 		if err != nil {
 			return 0, err
 		}

@@ -5,22 +5,26 @@ import (
 	"sync"
 
 	st "github.com/TheSmallBoat/carlo/streaming_transmit"
+	"github.com/lithdew/kademlia"
 )
 
 type ContextPool struct {
 	sp sync.Pool
 }
 
-func (p *ContextPool) acquire(headers map[string]string, body io.ReadCloser, id uint32, conn *st.Conn) *Context {
+func (p *ContextPool) acquire(kadId kademlia.ID, headers map[string]string, body io.ReadCloser, streamId uint32, conn *st.Conn) *Context {
 	v := p.sp.Get()
 	if v == nil {
 		v = &Context{responseHeaders: make(map[string]string)}
 	}
 	ctx := v.(*Context)
+	ctx.KadId = kadId
 	ctx.Headers = headers
 	ctx.Body = body
-	ctx.StreamId = id
-	ctx.Conn = conn
+
+	ctx.streamId = streamId
+	ctx.conn = conn
+
 	return ctx
 }
 
