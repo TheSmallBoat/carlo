@@ -18,9 +18,7 @@ func main() {
 	go func() {
 		conn, err := net.Dial("tcp", ":4444")
 
-		sess, err := st.NewSession()
-		check(err)
-
+		var sess st.Session
 		check(sess.DoClient(conn))
 		fmt.Println(hex.EncodeToString(sess.SharedKey()))
 
@@ -42,9 +40,7 @@ func main() {
 	check(err)
 	defer conn.Close()
 
-	sess, err := st.NewSession()
-	check(err)
-
+	var sess st.Session
 	check(sess.DoServer(conn))
 
 	fmt.Println(hex.EncodeToString(sess.SharedKey()))

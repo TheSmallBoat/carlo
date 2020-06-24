@@ -43,23 +43,18 @@ type HandshakerFunc func(conn net.Conn) (BufferedConn, error)
 func (fn HandshakerFunc) Handshake(conn net.Conn) (BufferedConn, error) { return fn(conn) }
 
 var DefaultClientHandshaker HandshakerFunc = func(conn net.Conn) (BufferedConn, error) {
-	session, err := NewSession()
+	var session Session
+	err := session.DoClient(conn)
 	if err != nil {
 		return nil, err
 	}
-	err = session.DoClient(conn)
-	if err != nil {
-		return nil, err
-	}
+
 	return NewSessionConn(session.Suite(), conn), nil
 }
 
 var DefaultServerHandshaker HandshakerFunc = func(conn net.Conn) (BufferedConn, error) {
-	session, err := NewSession()
-	if err != nil {
-		return nil, err
-	}
-	err = session.DoServer(conn)
+	var session Session
+	err := session.DoServer(conn)
 	if err != nil {
 		return nil, err
 	}
