@@ -544,7 +544,7 @@ func (n *StreamNode) HandleMessage(ctx *st.Context) error {
 			provider.CloseStreamWithError(stream, io.EOF)
 		} else {
 			_, err = stream.Writer.Write(packet.Data)
-			if err != nil && !errors.Is(err, io.ErrClosedPipe) {
+			if err != nil {
 				err = fmt.Errorf("failed to write payload: %w", err)
 				provider.CloseStreamWithError(stream, err)
 				return err
