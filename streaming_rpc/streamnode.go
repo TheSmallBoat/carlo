@@ -349,18 +349,33 @@ func (n *StreamNode) getResolvedString(addr string) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		if resolved.IP == nil {
+			resolved.IP = net.ParseIP("0.0.0.0")
+		}
+
 		return resolved.String(), nil
 	case NetProtocolUDP:
 		resolved, err := net.ResolveUDPAddr("udp", addr)
 		if err != nil {
 			return "", err
 		}
+
+		if resolved.IP == nil {
+			resolved.IP = net.ParseIP("0.0.0.0")
+		}
+
 		return resolved.String(), nil
 	case NetProtocolIP:
 		resolved, err := net.ResolveIPAddr("ip", addr)
 		if err != nil {
 			return "", err
 		}
+
+		if resolved.IP == nil {
+			resolved.IP = net.ParseIP("0.0.0.0")
+		}
+
 		return resolved.String(), nil
 	}
 	return "", errors.New("unknown the net protocol type, must be tcp/udp/ip")
