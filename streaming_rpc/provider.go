@@ -25,7 +25,7 @@ type Provider struct {
 }
 
 func (p *Provider) NextStream() *Stream {
-	reader, writer := io.Pipe()
+	reader, writer := createWrappedPipe()
 
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -53,7 +53,7 @@ func (p *Provider) GetStream(id uint32) (*Stream, bool) {
 }
 
 func (p *Provider) RegisterStreamWithServiceRequestPacket(header ServiceRequestPacket) (*Stream, bool) {
-	reader, writer := io.Pipe()
+	reader, writer := createWrappedPipe()
 
 	p.mu.Lock()
 	defer p.mu.Unlock()

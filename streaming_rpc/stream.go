@@ -1,14 +1,13 @@
 package streaming_rpc
 
 import (
-	"io"
 	"sync"
 )
 
 type Stream struct {
 	ID     uint32
-	Reader *io.PipeReader
-	Writer *io.PipeWriter
+	Reader *pipeReader
+	Writer *pipeWriter
 
 	Header *ServiceResponsePacket
 
