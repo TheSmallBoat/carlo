@@ -275,6 +275,20 @@ func (n *StreamNode) Push(services []string, headers map[string]string, body io.
 	return nil, fmt.Errorf("no nodes were able to process your request for service(s): %s", services)
 }
 
+func (n *StreamNode) ProvidersFor(services ...string) []*Provider {
+	set := make(map[kademlia.PublicKey]*Provider)
+	for _, provider := range n.providers.getProviders(services...) {
+		set[provider.kadId.Pub] = provider
+	}
+
+	providers := make([]*Provider, 0, len(set))
+	for _, provider := range set {
+		providers = append(providers, provider)
+	}
+
+	return providers
+}
+
 // Implement HandleConnState function for the ConnStateHandler interface
 func (n *StreamNode) HandleConnState(conn *st.Conn, state st.ConnState) {
 	if state != st.StateClosed {
