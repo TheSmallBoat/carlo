@@ -61,10 +61,6 @@ func (c *Context) Write(data []byte) (int, error) {
 		}
 	}
 
-	if len(data) == 0 { // disallow writing zero bytes
-		return 0, nil
-	}
-
 	for i := 0; i < len(data); i += ChunkSize {
 		start := i
 		end := i + ChunkSize
