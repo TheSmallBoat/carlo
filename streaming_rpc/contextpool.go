@@ -8,6 +8,8 @@ import (
 	"github.com/lithdew/kademlia"
 )
 
+var contextPool = &ContextPool{sp: sync.Pool{}}
+
 type ContextPool struct {
 	sp sync.Pool
 }
