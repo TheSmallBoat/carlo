@@ -167,6 +167,10 @@ func (p *Provider) Services() []string {
 	return services
 }
 
+func (p *Provider) KadID() *kademlia.ID {
+	return p.kadId
+}
+
 func (p *Provider) Addr() string {
 	if p.kadId != nil {
 		return HostAddr(p.kadId.Host, p.kadId.Port)
