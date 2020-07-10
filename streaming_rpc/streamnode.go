@@ -289,6 +289,10 @@ func (n *StreamNode) ProvidersFor(services ...string) []*Provider {
 	return providers
 }
 
+func (n *StreamNode) Providers() *Providers {
+	return n.providers
+}
+
 // Implement HandleConnState function for the ConnStateHandler interface
 func (n *StreamNode) HandleConnState(conn *st.Conn, state st.ConnState) {
 	if state != st.StateClosed {
