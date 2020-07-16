@@ -1,6 +1,6 @@
 # carlo
 
-The bare minimum for the high performance, bidirectional fully-encrypted streaming-transmit and streaming-RPC in Go with zero memory allocations.
+A library with the bare minimum for the high-performance, bidirectional fully-encrypted streaming-transmit and streaming-RPC in Go with zero memory allocations.
 
 It is a hard fork of [monte](https://github.com/lithdew/monte), mainly for experimental learning by reconstruction, not for improvement.
 
