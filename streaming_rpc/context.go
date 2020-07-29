@@ -36,6 +36,10 @@ type Context struct {
 	written         bool              // written before?
 }
 
+func (c *Context) Conn() *st.Conn {
+	return c.conn
+}
+
 func (c *Context) WriteHeader(key, val string) {
 	c.responseHeaders[key] = val
 }
