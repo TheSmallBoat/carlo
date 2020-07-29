@@ -443,7 +443,7 @@ func (n *StreamNode) HandleMessage(ctx *st.Context) error {
 		// id if we want to publicly advertise our microservice
 		return ctx.Reply(n.createHandshakePacket(body[:0]).AppendTo(body[:0]))
 	case OpCodeServiceRequest:
-		provider := n.providers.findProvider(ctx.Conn())
+		provider := n.providers.FindProvider(ctx.Conn())
 		if provider == nil {
 			return errors.New("conn is not a provider")
 		}
@@ -517,7 +517,7 @@ func (n *StreamNode) HandleMessage(ctx *st.Context) error {
 
 		return ctx.Conn().SendNoWait(response.AppendTo([]byte{OpCodeServiceResponse}))
 	case OpCodeServiceResponse:
-		provider := n.providers.findProvider(ctx.Conn())
+		provider := n.providers.FindProvider(ctx.Conn())
 		if provider == nil {
 			return errors.New("conn is not a provider")
 		}
@@ -538,7 +538,7 @@ func (n *StreamNode) HandleMessage(ctx *st.Context) error {
 
 		return nil
 	case OpCodeData:
-		provider := n.providers.findProvider(ctx.Conn())
+		provider := n.providers.FindProvider(ctx.Conn())
 		if provider == nil {
 			return errors.New("conn is not a provider")
 		}

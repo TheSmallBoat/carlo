@@ -21,7 +21,7 @@ func NewProviders() *Providers {
 	}
 }
 
-func (p *Providers) findProvider(conn *st.Conn) *Provider {
+func (p *Providers) FindProvider(conn *st.Conn) *Provider {
 	p.Lock()
 	defer p.Unlock()
 	return p.providers[conn]
